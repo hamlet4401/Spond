@@ -497,3 +497,26 @@ class Spond(_SpondBase):
                 return entity
         errmsg = f"No {entity_type} with id='{uid}'."
         raise KeyError(errmsg)
+
+    @_SpondBase.require_authentication
+    async def get_posts_for_group(self, group_id: str, subgroup_id: str, max_posts: int = 5) -> list[JSONDict] | None:
+        """
+        Retrieve posts for a given group and subgroup.
+        """
+        url = f"{self.api_url}posts"
+        params = {
+            "type": "PLAIN",
+            "includeComments": "true",
+            "includeReadStatus": "true",
+            "includeSeenCount": "true",
+            "max": max_posts,
+            "groupId": group_id,
+            "subGroupId": subgroup_id
+        }
+
+        async with self.clientsession.get(url, headers=self.auth_headers, params=params) as r:
+            posts = await r.json()
+            return posts
+
+
+
